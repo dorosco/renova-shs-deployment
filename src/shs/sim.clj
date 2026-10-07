@@ -169,7 +169,7 @@
 (defn connect!
   "In-memory Datomic Local. For disk storage use :storage-dir \"/path\"."
   []
-  (let [client (d/client {:server-type :datomic-local :system "renova-simmulation"})]
+  (let [client (d/client {:server-type :datomic-local :system "renova-simulation"})]
     (d/create-database client {:db-name "simulations"})
     (let [conn (d/connect client {:db-name "simulations"})]
       (d/transact conn {:tx-data schema})
