@@ -1,4 +1,7 @@
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
         ;; Datomic Local (in-memory or on-disk, free). Check Maven Central for the latest version.
-        com.datomic/local   {:mvn/version "1.0.291"}}}
+        com.datomic/local   {:mvn/version "1.0.291"}}
+ :aliases {
+           :run {:exec-fn shs.core/run_scenario!
+                }}}

@@ -1,0 +1,9 @@
+(ns shs.core
+  (:require [shs.sim :as shs]))
+
+(defn run_scenario!
+  []
+  (def rows (shs.simulate shs.base-params))
+  (shs.print-table (shs.montlhy-summary rows (:total-households shs.base-params)))
+)
+
