@@ -116,8 +116,37 @@
                {:acc [] :cum 0.0})
        :acc))
 
+(defn monthly-summary-by-sub
+  "The same as monthly-summary but with breakdown by subcontractor"
+  [rows total]
+  (->> (group-by :month rows)
+       (sort-by key)
+       (reduce (fn [{:keys [acc cum]} [m rs]]
+                 (let [inst (reduce + (map :installed rs))
+                       cum' (+ cum inst)
+                       list-subs (sort-by str (distinct (map :sub rs)))
+                       inst-by-sub (sort-by first (mapv #(conj [(:sub %)
+                                                                (:crews %)
+                                                                (:installed %)]) rs))
+                       ]
+                   {:acc (conj acc {:month m
+                                    :cal (:cal (first rs))
+                                    :weather (:weather (first rs))
+                                    :list-subs list-subs
+                                    :subs-met inst-by-sub ;metrics by subcontractor
+                                    :subs (count (distinct (map :sub rs)))
+                                    :crews (reduce + (map :crews rs))
+                                    :installed inst
+                                    :cumulative cum'
+                                    :pct (* 100.0 (/ cum' total))})
+                    :cum cum'}))
+               {:acc [] :cum 0.0})
+       :acc))
+
+
+
 (defn total-installed [params]
-  (reduce + 0.0 (map :installed (simulate params))))
+      (reduce + 0.0 (map :installed (simulate params))))
 
 (defn min-peak-crews
   "Smallest :peak-crews (bisection) that still completes :total-households within
@@ -235,17 +264,19 @@
             db scn)
        (into {})))
 
+
+
 (defn installed-by-sub [db scn]
-  (->> (d/q '[:find ?id ?month ?inst
-              :in $ ?scn
-              :where [?e :scenario/name ?scn]
-                     [?s :sub/scenario ?e]
-                     [?s :sub/id ?id]
-                     [?dp :deploy/sub ?s]
-                     [?dp :deploy/month ?month]
-                     [?dp :deploy/installed ?inst]]
-            db scn)
-       (sort-by (juxt first second))))
+      (->> (d/q '[:find ?id ?month ?inst
+                        :in $ ?scn
+                        :where [?e :scenario/name ?scn]
+                        [?s :sub/scenario ?e]
+                        [?s :sub/id ?id]
+                        [?dp :deploy/sub ?s]
+                        [?dp :deploy/month ?month]
+                        [?dp :deploy/installed ?inst]]
+                db scn)
+           (sort-by (juxt first second))))
 
 ;; ---------------------------------------------------------------------------
 ;; 5. REPL usage
@@ -261,10 +292,22 @@
   (print-table (monthly-summary
                 (simulate (assoc base-params :rain-reduction 0.0))   ; no weather effect
                 200000))
+  
   (print-table (monthly-summary
                 (simulate (assoc base-params :rain-reduction 0.5 :rainy-months #{10 11 12 1 2 3}))
                 200000))
 
+  ;; Performance variants
+  (print-table (monthly-summary
+                (simulate (assoc base-params :houses-per-crew-day 1.2))  
+                200000))
+  
+  (print-table (monthly-summary
+                (simulate (assoc base-params :houses-per-crew-day 1.5))
+                200000))
+
+
+  
   ;; Datomic
   (def conn (connect!))
   (save-scenario! conn base-params)

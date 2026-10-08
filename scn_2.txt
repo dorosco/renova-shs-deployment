@@ -1,0 +1,23 @@
+{:working-days 22,
+ :houses-per-crew-day 1.2,
+ :peak-crews 550,
+ :rain-reduction 0.4,
+ :rainy-months #{1 12 2 11},
+ :subcontractors
+ [{:id "A1", :type :A, :start 1}
+  {:id "A2", :type :A, :start 1}
+  {:id "B1", :type :B, :start 1}
+  {:id "A3", :type :A, :start 3}
+  {:id "B2", :type :B, :start 1}
+  {:id "A4", :type :A, :start 3}
+  {:id "B3", :type :B, :start 5}
+  {:id "A5", :type :A, :start 5}
+  {:id "B4", :type :B, :start 5}
+  {:id "B5", :type :B, :start 5}],
+ :start-month "2027-09",
+ :total-households 200000,
+ :efficiency 1.0,
+ :scenario/name "base",
+ :ramp-months 3,
+ :horizon-months 24,
+ :capacity-ratio 1.5}
